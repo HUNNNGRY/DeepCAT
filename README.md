@@ -14,7 +14,7 @@ DeepCAT is a computational method based on convolutional neural network to exclu
     In Terminal:
 
 ```bash
-  git clone https://github.com/s175573/DeepCAT.git
+  git clone https://github.com/HUNNNGRY/DeepCAT.git
 ```
 
  2. Go to DeepCAT folder and unzip DeepCAT_CHKP.zip file with pre-trained model 
@@ -27,32 +27,20 @@ DeepCAT is a computational method based on convolutional neural network to exclu
  3. Running the DeepCAT requires python3, biopython, tensorflow version 1.4 and matplotlib packages to be installed. If they are not installed on your machine, please run the command:
  
 ```bash
-  pip install biopython tensorflow==1.14 matplotlib scikit-learn
+  conda create -n DeepCAT python=3.6 tensorflow==1.14 biopython matplotlib scikit-learn
 ```
 
- 4. Now we are ready to run DeepCAT to perform cancer score prediction  
+ 4. Using raw TCR repertoire sequencing data from adaptativebiotech database  
 
-
-***&nbsp; &nbsp; 4A. User doesn't have raw TCR repertoire sequencing data.***
- 
-
-
-&nbsp; &nbsp; &nbsp;&nbsp;
-In this case please use the data in a SampleData folder for an example input. 
-This folder contains 4 files, all profiled by Adaptive Biotechnology and can be downloaded from immuneAccess (https://clients.adaptivebiotech.com/immuneaccess).
-
-&nbsp; &nbsp; &nbsp;&nbsp;
-Files 1 and 2 come from early-stage breast cancer patients; 3 and 4 from healthy donors.<br />
-To process input files just call Script_DeepCAT.sh:
+-t: input dir
 
 ```bash
-  bash  Script_DeepCAT.sh -t SampleData/Control
+  bash  Script_DeepCAT.sh -t SampleData/Control    
   bash  Script_DeepCAT.sh -t SampleData/Cancer
 ```
 
 &nbsp; &nbsp; &nbsp;&nbsp;
-DeepCAT will output two files, Cancer_score_Control.txt and Cancer_score_Cancer.txt. 
-
+DeepCAT will output two files, Cancer_score_Control.txt and Cancer_score_Cancer.txt in current DeepCAT dir,like this:
 
 ```bash
   $ head Cancer_score_Control.txt
@@ -79,40 +67,10 @@ Let’s make boxplots with cancer scores and ROC curve for early-stage breast ca
 </p>
 
 
-***&nbsp; &nbsp; 4B. User has raw TCR repertoire sequencing data.***
-
-
-&nbsp; &nbsp; &nbsp;&nbsp;
-If starting from raw TCR repertoire sequencing data produced from AdaptiveBiotech immuneAnalyzer, please create a folder (your_folder_name) in a DeepCAT directory and place your input “tsv” file/s there. The DeepCAT directory contains example of raw input file, Example_raw_file.tsv.
-
-```bash
-  mkdir your_folder_name
-  bash  Script_DeepCAT.sh -r your_folder_name
-```
-
-&nbsp; &nbsp; &nbsp;&nbsp;
-After running Script_DeepCAT.sh an output file Cancer_score.txt will be created, which contains name of the input file and corresponding cancer score. 
-
 To date, cancer score estimation is the average of DeepCAT output probabilities, and is intended to evaluate only for unsorted PBMC samples from healthy individuals or untreated cancer patients. _Application of cancer scores on flow-sorted T cells, TCR-seq data profiled using a different platform, patient samples with poor quality (low total template counts), or patients with chronic inflammatory conditions may lead to undesirable results._ These results or observations cannot be compared to the data generated in the DeepCAT publication (currently in submission). 
 
 
-### Training DeepCAT models
-
-To train DeepCAT from scratch, please use our example data in TrainingData folder. This folder contains two files, each is a list of CDR3s coming from either cancer or healthy individuals.
-Run the following command in Terminal:
-
-```python
-python
->>> from DeepCAT import *
->>> PredictClassList,PredictLabelList,AUCDictList = batchTrain(ftumor='TrainingData/TumorCDR3.txt',n=10, feval_tumor='TrainingData/TumorCDR3_test.txt', feval_normal='TrainingData/NormalCDR3_test.txt', STEPs=20000, rate=0.33, fnormal='TrainingData/NormalCDR3.txt')
->>> print(AUCDictList)
-```
-This function performs n (=10 here) times 3-fold cross-validation by subsampling 1-rate (67%) of the data for training, and the remaining 33% for validation. The number of training steps in each run is equal 20000.
-
-It will create a subdirectory under the current path, /tmp/, which stores all the checkpoint folders with trained models for each run.
-The ROC values for each CDR3 length will be shown in Terminal.
-
-### Docker image for DeepCAT  
+### Docker image for DeepCAT  (optional)
 The Docker image can be downloaded at https://hub.docker.com/r/deepcat/cancer_associated_tcr
 ```bash
 docker pull deepcat/cancer_associated_tcr:1
